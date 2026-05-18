@@ -2,7 +2,6 @@ import telebot
 from telebot import apihelper
 from telebot.types import InlineKeyboardMarkup,InlineKeyboardButton
 # Letak ni sebelum baris bot = telebot.TeleBot(TOKEN)
-apihelper.proxy = {'https': 'http://proxy.server:3128'}
 
 TOKEN = "8300282726:AAGzbEAk-miE-F935spHWdEiYXrBfdUrvDU"
 bot = telebot.TeleBot(TOKEN)
