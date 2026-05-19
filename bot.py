@@ -414,3 +414,27 @@ def welcome(msg):
 # ================= RUN =================
 print("\033[1;31m🤖 Bot berjalan (AnwBotGroup)....\033[0m")
 bot.infinity_polling()
+
+# ... (kod bot abang yang lain kat sini) ...
+
+# Flask "Penyelamat" (Wajib letak bawah sekali sebelum polling)
+from flask import Flask
+from threading import Thread
+import os
+
+app = Flask('')
+
+@app.route('/')
+def home():
+    return "Bot is online"
+
+def run():
+    # Ambil port dari sistem, kalau takde guna 8080
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host='0.0.0.0', port=port)
+
+t = Thread(target=run)
+t.start()
+
+# Bot jalan
+bot.infinity_polling(none_stop=True)
