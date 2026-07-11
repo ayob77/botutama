@@ -31,6 +31,7 @@ def main_menu():
         InlineKeyboardButton("🛠 Tool", url=TOOL_LINK),
         InlineKeyboardButton("💎 CODE KERETA", callback_data="harga_menu"),
         InlineKeyboardButton("🛠️ CUSTOM SPOILER & BESI", callback_data="custom_menu"),
+        InlineKeyboardButton("👑 RANK KING", callback_data="run_rank_king"),
         InlineKeyboardButton("�‍💼 Admin", url=ADMIN_LINK),
         InlineKeyboardButton("📹 VIDEO ACC", url=CHANNEL_ACC_CPM),
         InlineKeyboardButton("🔑 API KEY (PM Admin)", url=ADMIN_LINK)
@@ -69,6 +70,45 @@ def check_join(call):
     except:
         bot.answer_callback_query(call.id, "❌ Sila join group dulu.", show_alert=True)
 
+# ================= RANK KING (TAMBAHAN) =================
+@bot.callback_query_handler(func=lambda c: c.data == "run_rank_king")
+def run_rank_king(call):
+    bot.answer_callback_query(call.id)
+    bot.send_message(call.message.chat.id, "📧 Sila masukkan Email:")
+    user_status[call.message.chat.id] = {'step': 'get_email'}
+
+@bot.message_handler(func=lambda message: message.chat.id in user_status)
+def handle_input(message):
+    chat_id = message.chat.id
+    step = user_status[chat_id].get('step')
+
+    if step == 'get_email':
+        user_status[chat_id]['email'] = message.text
+        bot.reply_to(message, "🔑 Sila masukkan Password:")
+        user_status[chat_id]['step'] = 'get_password'
+
+    elif step == 'get_password':
+        user_status[chat_id]['password'] = message.text
+        email = user_status[chat_id]['email']
+        password = user_status[chat_id]['password']
+        del user_status[chat_id]
+        bot.send_message(chat_id, "⏳ Sending......")
+
+        url = "https://cpm-rank-t3f2.onrender.com/rank"
+        headers = {"Content-Type": "application/json"}
+        payload = {"email": email, "password": password}
+
+        try:
+            session = requests.Session()
+            session.trust_env = False 
+            response = session.post(url, json=payload, headers=headers, timeout=30)
+            if response.status_code == 200:
+                bot.send_message(chat_id, "✅ Rank King Code Injected Successfully!")
+            else:
+                bot.send_message(chat_id, f"❌ Server returned error code: {response.status_code}")
+        except Exception as e:
+            bot.send_message(chat_id, f"❌ Connection error!\nDetail: Rangkaian disekat atau server down.")
+            
 # ================= HARGA =================
 @bot.callback_query_handler(func=lambda c: c.data == "harga_menu")
 def harga_menu(call):
