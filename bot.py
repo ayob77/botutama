@@ -288,6 +288,7 @@ def harga_menu(call):
         "253 FORD TURCKS NEW\n"
         "257 BMW M2 NEW\n"
         "259 FORTUNER NEW\n"
+        "test\n"
     )
     kb = InlineKeyboardMarkup()
     kb.add(InlineKeyboardButton("⬅ Kembali", callback_data="back_menu"))
