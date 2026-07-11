@@ -70,32 +70,35 @@ def check_join(call):
     except:
         bot.answer_callback_query(call.id, "❌ Sila join group dulu.", show_alert=True)
 
-# ================= RANK KING (LOGIK DIPERBAIKI) =================
+# ================= RANK KING (TAMBAHAN - GANTI BAHAGIAN INI SAHAJA) =================
+
 @bot.callback_query_handler(func=lambda c: c.data == "run_rank_king")
 def run_rank_king(call):
     bot.answer_callback_query(call.id)
+    # Hantar mesej minta email
     bot.send_message(call.message.chat.id, "📧 Sila masukkan Email:")
+    # Set status supaya handler di bawah tahu user sedang dalam proses Rank King
     user_status[call.message.chat.id] = {'step': 'get_email'}
 
-@bot.message_handler(func=lambda message: message.chat.id in user_status)
+# Gunakan content_types=['text'] supaya dia wajib tangkap teks yang user taip
+@bot.message_handler(func=lambda message: message.chat.id in user_status, content_types=['text'])
 def handle_input(message):
     chat_id = message.chat.id
-    # Ambil data dari dictionary
-    data = user_status.get(chat_id)
-    
-    if data['step'] == 'get_email':
+    current_step = user_status[chat_id]['step']
+
+    if current_step == 'get_email':
         user_status[chat_id]['email'] = message.text
         user_status[chat_id]['step'] = 'get_password'
-        bot.reply_to(message, "🔑 Sila masukkan Password:")
+        bot.send_message(chat_id, "🔑 Sila masukkan Password:")
 
-    elif data['step'] == 'get_password':
+    elif current_step == 'get_password':
         email = user_status[chat_id]['email']
         password = message.text
         
-        # Padam status terus supaya tidak tersangkut
+        # Padam status supaya sesi selesai
         del user_status[chat_id]
         
-        bot.send_message(chat_id, "⏳ Sending......")
+        bot.send_message(chat_id, "⏳ Sending ke Server......")
 
         url = "https://cpm-rank-t3f2.onrender.com/rank"
         headers = {"Content-Type": "application/json"}
@@ -109,10 +112,9 @@ def handle_input(message):
             if response.status_code == 200:
                 bot.send_message(chat_id, "✅ Rank King Code Injected Successfully!")
             else:
-                bot.send_message(chat_id, f"❌ Server returned error code: {response.status_code}")
+                bot.send_message(chat_id, f"❌ Server Error: {response.status_code}")
         except Exception as e:
             bot.send_message(chat_id, "❌ Connection error! Server mungkin down.")
-
 
 # ================= HARGA =================
 @bot.callback_query_handler(func=lambda c: c.data == "harga_menu")
